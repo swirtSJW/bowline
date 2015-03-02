@@ -1,12 +1,25 @@
 #
-# PHP 5.4
+# PHP 5.3
 # - also includes Apache, Composer, Drupal configuration
 #
 
-FROM debian:wheezy
+FROM debian:squeeze
 MAINTAINER David Numan <david.numan@civicactions.com>
 
 ENV DEBIAN_FRONTEND noninteractive
+
+# Install utils
+RUN apt-get update && apt-get -y install wget curl
+
+# Configure Dotdeb sources
+RUN \
+  wget -O - http://www.dotdeb.org/dotdeb.gpg | apt-key add - && \
+  echo "deb http://packages.dotdeb.org squeeze all" > /etc/apt/sources.list.d/dotdeb.list && \
+  echo "\ndeb-src http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list.d/dotdeb.list && \
+  apt-get update
+
+# Install PHP
+RUN apt-get -y install php5
 
 # Keep upstart from complaining
 RUN dpkg-divert --local --rename --add /sbin/initctl
