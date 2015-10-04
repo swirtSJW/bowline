@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+source $(dirname $0)/../lib/bowline/bowline
+assert_running
+
+myID=$(curl -s http://localhost:8384/rest/system/status |grep -Po '"myID":(\d*?,|.*?[^\\]",)' |sed -e 's/"myID":"//' -e 's/",//')
+syncID=$($DCOMPOSE run sync_cli syncthing-cli -e http://sync:8384 id)
+
+echo -e "\nmyID:   $myID \nsyncID: $syncID"
+
+echo "Adding ID to sync container"
+$DCOMPOSE run sync_cli syncthing-cli -e http://sync:8384 devices add $myID
+
+folderID=$SLUG
+
+echo "Adding $folderID folder"
+$DCOMPOSE run sync_cli syncthing-cli -e http://sync:8384 folders add $folderID /home/user/www
+
+
+echo "Adding sharing to $folderID folder"
+$DCOMPOSE run sync_cli syncthing-cli -e http://sync:8384 folders devices add $folderID $myID
+
+echo -e "\n\nPlease load http://127.0.0.1:8384/ in your browser and accept the device and folder connections messages."
+echo "It may take up to 60 seconds for the messages to appear."
+echo "When accepting the folder you will need to set the folder path to this: $GIT_ROOT"

@@ -1,3 +1,15 @@
+sync:
+  image: tianon/syncthing
+  command: syncthing -gui-address=0.0.0.0:8384
+  hostname: sync-container
+  volumes:
+    - /home/user
+sync_cli:
+  image: tianon/syncthing-cli
+  hostname: sync-cli
+  links:
+    - sync:sync
+
 db:
   image: mariadb:10.0
   environment:
@@ -18,10 +30,10 @@ php:
     - COMPOSER_HOME=/.composer
   expose:
     - "9000"
-  volumes:
-    - .:/var/www
   links:
     - db:dbhost
+  volumes_from:
+    - sync
   hostname: php_host
 web:
   image: davenuman/bowline-centos
@@ -32,5 +44,5 @@ web:
     - db:dbhost
     - php:php_host
   volumes_from:
-    - php
+    - sync
   hostname: drupal
