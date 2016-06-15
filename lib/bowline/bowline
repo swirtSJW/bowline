@@ -10,14 +10,6 @@ get_container_name () { echo "${SLUG}_${1}_1"; }
 
 check_build() { unset CONTAINERS_BUILT; [ "$(docker ps -a | grep ${SLUG}_web)" ] && CONTAINERS_BUILT="true"; }
 
-check_proxy() {
-  unset PROXY_RUNNING PROXY_HOST_SET;
-  if [ "$(docker ps -q -f name=proxy_)" ];then
-    PROXY_RUNNING="true";
-    PROXY_HOST_SET=$(docker exec proxy_dnsmasq_1 grep "\s${SLUG}$" /etc/althosts|grep "$web_ip\s")
-  fi
-}
-
 # Set basic env variables.
 bowline_init () {
   cd $(dirname $0)
@@ -67,6 +59,28 @@ bowline_init () {
 
 [ $context = "host" ] && bowline_init
 
+
+assert_proxy () {
+  local proxy_image=jwilder/nginx-proxy
+  # Check if the proxy container is running.
+  if [ ! "$(docker ps -f name=proxy -f ancestor=$proxy_image -q)" ];then
+    # Check if the proxy container stopped.
+    if [ "$(docker ps -f name=proxy -f ancestor=$proxy_image -qa)" ];then
+      docker start proxy
+    else
+      echo "Starting proxy container"
+      docker run -d \
+        -p 80:80 -p 443:443 \
+        -v /var/run/docker.sock:/tmp/docker.sock:ro \
+        --name proxy $proxy_image
+    fi
+  fi
+
+  # Configure host for proxy.
+  local proxyconf_file=".bowline/docker-compose.proxyconf.yml"
+  echo -e "web:\n  environment:\n    - VIRTUAL_HOST=${SLUG}.localtest.me" > $proxyconf_file
+  DCOMPOSE="$DCOMPOSE -f docker-compose.yml -f $proxyconf_file"
+}
 
 assert_running () {
   local cn=$(get_container_name web)
