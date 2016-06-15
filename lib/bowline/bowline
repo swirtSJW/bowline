@@ -55,6 +55,8 @@ bowline_init () {
     fi
     export containers="${containers} ${name}"
   done
+
+  [ "$CONF_WEB_DOMAIN" ] && WEB_DOMAIN=$CONF_WEB_DOMAIN || WEB_DOMAIN="${BOWLINE}.localtest.me"
 }
 
 [ $context = "host" ] && bowline_init
@@ -66,6 +68,7 @@ assert_proxy () {
   if [ ! "$(docker ps -f name=proxy -f ancestor=$proxy_image -q)" ];then
     # Check if the proxy container stopped.
     if [ "$(docker ps -f name=proxy -f ancestor=$proxy_image -qa)" ];then
+      echo "Restarting proxy container"
       docker start proxy
     else
       echo "Starting proxy container"
@@ -78,7 +81,7 @@ assert_proxy () {
 
   # Configure host for proxy.
   local proxyconf_file=".bowline/docker-compose.proxyconf.yml"
-  echo -e "web:\n  environment:\n    - VIRTUAL_HOST=${SLUG}.localtest.me" > $proxyconf_file
+  echo -e "web:\n  environment:\n    - VIRTUAL_HOST=${WEB_DOMAIN}" > $proxyconf_file
   DCOMPOSE="$DCOMPOSE -f docker-compose.yml -f $proxyconf_file"
 }
 

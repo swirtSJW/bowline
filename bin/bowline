@@ -14,4 +14,4 @@ for c in $containers;do
   unset link
 done | column -t -s ","
 
-echo proxied url: http://${SLUG}.localtest.me/
+echo proxied url: http://${WEB_DOMAIN}
