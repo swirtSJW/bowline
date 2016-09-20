@@ -1,3 +1,8 @@
+# Storage
+filestore:
+  build: .docker/sshd
+  volumes:
+    - /var/www
 db:
   image: mariadb:10.0
   environment:
@@ -11,6 +16,8 @@ db:
   hostname: dbhost
   expose:
     - "3306"
+
+# Services
 php:
   image: davenuman/bowline-centos
   command: php-fpm
@@ -18,8 +25,8 @@ php:
     - COMPOSER_HOME=/.composer
   expose:
     - "9000"
-  volumes:
-    - .:/var/www
+  volumes_from:
+    - filestore
   links:
     - db:dbhost
   hostname: php_host
@@ -31,6 +38,20 @@ web:
   links:
     - db:dbhost
     - php:php_host
-  volumes_from:
-    - php
   hostname: drupal
+  volumes_from:
+    - filestore
+
+# File synchronizing
+sync:
+  build: .docker/osync
+  #command: osync.sh --master=/var/www/ --slave=ssh://data@filestore:22//var/www
+  #command: osync.sh --master=/var/www/ --slave=ssh://data@filestore:22//var/www --on-changes
+  command: sleep 9000
+  links:
+    - filestore:filestore
+  volumes:
+    - ./docroot:/var/www/docroot
+    - .ssh:/tmp/keys
+  hostname: sync
+
