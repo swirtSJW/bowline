@@ -15,4 +15,6 @@ RUN cd /usr/src/osync* && \
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
+COPY start.sh /
+
 COPY sync.conf /etc/osync
