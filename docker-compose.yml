@@ -43,11 +43,20 @@ web:
     - filestore
 
 # File synchronizing
+init:
+  build: .docker/osync
+  command: echo osync.sh /etc/osync/sync.conf
+  links:
+    - filestore:filestore
+  volumes:
+    - ./docroot:/var/www/docroot
+    - .ssh:/tmp/keys
+  hostname: init
 sync:
   build: .docker/osync
   #command: osync.sh --master=/var/www/ --slave=ssh://data@filestore:22//var/www
   #command: osync.sh --master=/var/www/ --slave=ssh://data@filestore:22//var/www --on-changes
-  command: sleep 9000
+  command: osync.sh /etc/osync/sync.conf #--on-changes
   links:
     - filestore:filestore
   volumes:
