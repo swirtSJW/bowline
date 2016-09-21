@@ -45,3 +45,5 @@ tests/behat/local.yml
 *.sass-cache
 .drush
 .bash_history
+.osync_workdir
+.ssh

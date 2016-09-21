@@ -1,6 +1,8 @@
 # Storage
 filestore:
   build: .docker/sshd
+  environment:
+    - HOST_USER=${HOST_UID}:${HOST_GID}
   volumes:
     - /var/www
 db:
@@ -23,6 +25,7 @@ php:
   command: php-fpm
   environment:
     - COMPOSER_HOME=/.composer
+    - HOST_USER=${HOST_UID}:${HOST_GID}
   expose:
     - "9000"
   volumes_from:
@@ -33,6 +36,8 @@ php:
 web:
   image: davenuman/bowline-centos
   command: httpd -D FOREGROUND -e debug
+  environment:
+    - HOST_USER=${HOST_UID}:${HOST_GID}
   expose:
     - "80"
   links:
@@ -49,7 +54,7 @@ sync:
   links:
     - filestore:filestore
   volumes:
-    - ./docroot:/var/www/docroot
+    - ./:/var/www
     - .ssh:/tmp/keys
   hostname: sync
 

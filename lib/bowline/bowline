@@ -12,6 +12,8 @@ check_build() { unset CONTAINERS_BUILT; [ "$(docker ps -a | grep ${SLUG}_web)" ]
 
 # Set basic env variables.
 bowline_init () {
+  export HOST_UID=$(id -u)
+  export HOST_GID=$(id -g)
   cd $(dirname $0)
   GIT_ROOT=$(git rev-parse --show-toplevel)
   if [ -f "${GIT_ROOT}/.bowline/config" ]; then source "${GIT_ROOT}/.bowline/config"; fi
