@@ -49,12 +49,15 @@ web:
 
 # File synchronizing
 sync:
-  build: .docker/osync
-  command: /start.sh
-  links:
-    - filestore:filestore
+  image: cweagans/bg-sync
   volumes:
-    - ./:/var/www
-    - .ssh:/tmp/keys
-  hostname: sync
+    - .:/source
+  volumes_from:
+    - filestore
+  environment:
+    - SYNC_DESTINATION=/var/www
+    - SYNC_MAX_INOTIFY_WATCHES=70000
+    - SYNC_VERBOSE=1
+  privileged: true
+
 
