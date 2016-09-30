@@ -1,8 +1,7 @@
 # Storage
 filestore:
-  build: .docker/sshd
-  environment:
-    - HOST_USER=${HOST_UID}:${HOST_GID}
+  image: alpine
+  command: ls -la /var/www
   volumes:
     - /var/www
 db:

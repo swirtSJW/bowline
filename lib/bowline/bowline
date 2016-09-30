@@ -49,7 +49,9 @@ bowline_init () {
     # Set variables such as $web and $db from the docker-compose.yml.
     export "${name}=${container_name}"
     # Set IP addresses if they are available.
-    if [ "$CONTAINERS_BUILT" ];then
+    if [ "${name}" == "filestore" ];then
+      export "${name}_ip"="persistent volume"
+    elif [ "$CONTAINERS_BUILT" ];then
       local ip="$(docker inspect --format='{{.NetworkSettings.IPAddress}}' ${container_name})"
       [ "$ip" ] && export "${name}_ip"=$ip || export "${name}_ip"="not running"
     else

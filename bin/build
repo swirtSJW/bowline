@@ -3,21 +3,8 @@
 source $(dirname $0)/../lib/bowline/bowline
 assert_proxy
 
-if [ ! -d .ssh ];then
-  echo "# Making keys"
-  mkdir .ssh
-  # @TODO move this to inside the sync container, probably docker-entrypoint
-  ssh-keygen -q -N '' -C bowline-sync -f .ssh/id_rsa
-  cp -v .ssh/id_rsa.pub .ssh/authorized_keys
-fi
-
 echo "# STARTING CONTAINERS"
 $DCOMPOSE up -d --no-recreate
-
-# File sync prep
-docker cp .ssh ${SLUG}_filestore_1:/home/data
-docker exec -ti ${SLUG}_filestore_1 chown -R data: /home/data
-docker exec -ti ${SLUG}_filestore_1 chown -R data: /var/www
 
 EXIT=$?
 echo -e "\033[m Exit Status: $EXIT"
