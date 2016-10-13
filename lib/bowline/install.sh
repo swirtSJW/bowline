@@ -24,12 +24,12 @@ if [ ! -e ".git" ]; then
 fi
 
 # Add bowline remote.
-git remote add bowline git@github.com:davenuman/bowline.git
+git remote add bowline git@github.com:swirtSJW/bowline.git
 git remote update
 
 # Add the Bowline files, except for the readme and install files.
 if [ ! -e "lib/bowline" ]; then
-  git checkout bowline/master .
+  git checkout bowline/integration .
   git add . && git status
   git rm --cached readme.md bowline-install.sh
   git commit -m 'Adding bowline code' -n
