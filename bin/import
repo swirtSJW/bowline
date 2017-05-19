@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 source $(dirname $0)/../lib/bowline/bowline
-
+assert_composer
 
 # Process the arguments.
 DBFILE=$1
@@ -74,5 +74,15 @@ echo "Tables dropped.  Beginning import."
 
 # Import.
 pv $DBFILE | gunzip | $MYSQL
+
+DRUSH="/var/www/vendor/bin/drush --root=/var/www/docroot --uri=http://${1}/"
+echo "# Clearing all Drupal caches"
+$DRUSH cc all
+# echo "# Re-enabling Stage File Proxy module"
+# $DRUSH en --yes stage_file_proxy
+# echo "# Enabling MailLog module"
+# $DRUSH en --yes maillog
+# echo "# Enabling LiveReload module"
+# $DRUSH en --yes livereload
 
 echo "# DB import complete, recommend running 'drush updb'."
