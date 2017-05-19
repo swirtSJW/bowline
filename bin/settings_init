@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 
 source $(dirname $0)/../lib/bowline/bowline
-enter_container
 
-settingspath=/var/www/docroot/sites/default
-cd /var/www
-fix-perms
+settingspath=$GIT_ROOT/docroot/sites/default
 
 if [ ! -d "${settingspath}" ];then
   echo "Looks like Drupal isn't installed. Would you like to install it? [Y,n,7,8]"
@@ -19,7 +16,7 @@ if [ ! -d "${settingspath}" ];then
     version="drupal-8"
     composer require drush/drush:8.*
   fi
-  /var/www/vendor/bin/drush dl --destination=/var/www $version
+  drush dl --destination=/var/www $version
   [ -d "docroot" ] && mv -v docroot old-docroot
   mv -v drupal-* docroot
 fi
@@ -27,8 +24,8 @@ fi
 
 if [ ! -f "${settingspath}/local.settings.php" ];then
   cp -v ${settingspath}/sample_bowline.local.settings.php ${settingspath}/local.settings.php
-  echo "Docker created ${settingspath}/local.settings.php for sandbox."
-  echo "Edit the file if it is not for a sandbox."
+  echo "Docker created ${settingspath}/local.settings.php for dev."
+  echo "Edit the file above and change the environment to sandbox."
 elif [ ! "$(grep settings.docker.php ${settingspath}/local.settings.php)" ]; then
   echo "Docker based local.settings.php file already exists. Initialization skipped."
 else
