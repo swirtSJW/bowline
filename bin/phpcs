@@ -4,10 +4,9 @@ source $(dirname $0)/../lib/bowline/bowline
 assert_running
 
 # Make sure Drupal sniffer is installed
-if [ ! "$(enter ./vendor/bin/phpcs --config-show)" ];then
-  echo "Setting Drupal sniffer path"
-  enter ./vendor/bin/phpcs \
+if [ ! "$(docker exec -i ${web} sudo -iu www-data /var/www/vendor/bin/phpcs --config-show)" ];then
+  docker exec -i ${web} sudo -iu www-data /var/www/vendor/bin/phpcs \
     --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer -v
 fi
 
-docker exec --user www-data ${web} /var/www/vendor/bin/phpcs --standard=Drupal "$@"
+docker exec -i ${web} sudo -iu www-data /var/www/vendor/bin/phpcs "$@"

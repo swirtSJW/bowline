@@ -12,6 +12,6 @@ for c in $containers;do
   [ "$port_raw" ] && link=",http://${!ip_var}/"
   echo "$c,~,${!ip_var}${link}"
   unset link
-done | column -t -s ","
+done | tr , ' '
 
 echo proxied url: http://${WEB_DOMAIN}
